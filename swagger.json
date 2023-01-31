@@ -41,7 +41,7 @@
         }
       }
     },
-    "/api/v1/account": {
+    "/api/v1/account/{initialBalance}": {
       "get": {
         "tags": [
           "Hedera Account"
@@ -57,15 +57,16 @@
         "tags": [
           "Hedera Account"
         ],
-        "summary": "Create Hedera Account",
+        "summary": "Create an account on hedera with certain balance (transferred from default account).",
         "parameters": [
           {
-            "name": "user",
-            "in": "body",
-            "description": "User that we want to create",
+            "name": "initialBalance",
+            "in": "path",
+            "description": "add this much tinyBars to the user.",
             "schema": {
-              "$ref": "#/definitions/User"
-            }
+              "type": "integer"
+            },
+            "required": true
           }
         ],
         "responses": {

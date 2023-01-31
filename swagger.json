@@ -2,15 +2,15 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "My User Project CRUD",
-    "description": "My User Project Application API",
+    "title": "Hedera Starter Project",
+    "description": "Hashgraph Interaction API",
     "license": {
       "name": "MIT",
       "url": "https://opensource.org/licenses/MIT"
     }
   },
   "host": "localhost:5000",
-  "basePath": "/",
+  "basePath": "/api/v1",
   "tags": [
     {
       "name": "Users",
@@ -28,7 +28,7 @@
     "application/json"
   ],
   "paths": {
-    "/api/v1/hedera": {
+    "/hedera": {
       "get": {
         "tags": [
           "Hedera Account"
@@ -41,7 +41,7 @@
         }
       }
     },
-    "/api/v1/account/{initialBalance}": {
+    "/account/{initialBalance}": {
       "get": {
         "tags": [
           "Hedera Account"
@@ -87,6 +87,22 @@
             "description": "OK",
             "schema": {
               "$ref": "#/definitions/Users"
+            }
+          }
+        }
+      }
+    },
+    "/topic": {
+      "post": {
+        "tags": [
+          "HCS"
+        ],
+        "summary": "Create a HCS Topic",
+        "responses": {
+          "200": {
+            "description": "Topic ID",
+            "examples": {
+              "Topic ID": "00000.111"
             }
           }
         }

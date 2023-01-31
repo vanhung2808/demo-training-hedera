@@ -5,6 +5,8 @@ const port = process.env.PORT || 5000;
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 const acc = require('./src/endpoint/AccountService.js');
+const HCSService = require('./src/endpoint/HCSService.js');
+const hcsService = new HCSService();
 
 app.use(
     '/api-docs',
@@ -22,4 +24,9 @@ app.get('/api/v1/hedera', (req, res) => {
 app.post('/api/v1/account/:initialBalance', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(await acc.createAccount(req.params.initialBalance), null, 3));
+});
+
+app.post('/api/v1/topic/', async (req, res) => {
+    let topicId = await hcsService.createTopic();
+    res.send({ topic: `${topicId}`});
 });

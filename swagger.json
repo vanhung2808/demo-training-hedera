@@ -91,6 +91,22 @@
           }
         }
       }
+    },
+    "/api/v1/topic": {
+      "post": {
+        "tags": [
+          "HCS"
+        ],
+        "summary": "Create a HCS Topic",
+        "responses": {
+          "200": {
+            "description": "Topic ID",
+            "examples": {
+              "Topic ID": "00000.111"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {

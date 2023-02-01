@@ -30,3 +30,9 @@ app.post('/api/v1/topic/', async (req, res) => {
     let topicId = await hcsService.createTopic();
     res.send({ topic: `${topicId}`});
 });
+
+app.get('/api/v1/topic/:topicId', async (req, res) => {
+    let topicInfo = await hcsService.getTopicInfo(req.params.topicId);
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(topicInfo, null, 3));
+});

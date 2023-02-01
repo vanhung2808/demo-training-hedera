@@ -108,6 +108,35 @@
         }
       }
     },
+    "/submitMessage": {
+      "post": {
+        "tags": [
+          "HCS"
+        ],
+        "summary": "Submit a message to a topic",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "topicId",
+            "type": "string",
+            "default": "0.0.3120640",
+            "description": "0.0.3120640"
+          },
+          {
+            "in": "query",
+            "name": "message",
+            "type": "string",
+            "default": "Hello Duy!",
+            "description": "test"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success or failure"
+          }
+        }
+      }
+    },
     "/topic/{topicId}": {
       "get": {
         "tags": [
@@ -123,7 +152,6 @@
             "default": "0.0.2117",
             "required": true
           }
-
         ],
         "responses": {
           "200": {

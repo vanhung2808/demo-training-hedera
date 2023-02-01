@@ -1,4 +1,4 @@
-const {TopicCreateTransaction, TopicInfoQuery, TopicMessageSubmitTransaction} = require("@hashgraph/sdk");
+const {TopicCreateTransaction, TopicInfoQuery, TopicMessageSubmitTransaction, TopicMessageQuery} = require("@hashgraph/sdk");
 const BaseHederaService = require('./BaseHederaService.js');
 
 class HCSService extends BaseHederaService {
@@ -16,7 +16,6 @@ class HCSService extends BaseHederaService {
         console.log(info);
         return info;
     }
-
 }
 
 HCSService.prototype.createTopic = async function () {
@@ -33,6 +32,7 @@ HCSService.prototype.createTopic = async function () {
     await new Promise((resolve) => setTimeout(resolve, 2000));
     return topicId;
 }
+
 HCSService.prototype.submitMessage = async function (topicId, message) {
     //Create the transaction
     const transaction = await new TopicMessageSubmitTransaction()
@@ -40,6 +40,19 @@ HCSService.prototype.submitMessage = async function (topicId, message) {
         .setMessage(message);
     //Get the transaction message
     return transaction.getMessage();
+}
+
+HCSService.prototype.subscribeToTopic = async function (topicId) {
+    //Create the query
+    const client = this.getHederaClient();
+    new TopicMessageQuery()
+        .setTopicId(topicId)
+        .setStartTime(0)
+        .subscribe(
+            client,
+            (message) => console.log(Buffer.from(message.contents, "utf8").toString())
+        );
+    return true;
 }
 
 module.exports = HCSService;

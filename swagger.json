@@ -76,6 +76,29 @@
         }
       }
     },
+    "/account/info/{accountId}": {
+      "get": {
+        "tags": [
+          "Hedera Account"
+        ],
+        "summary": "Get account info",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/users": {
       "get": {
         "tags": [

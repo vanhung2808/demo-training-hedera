@@ -26,6 +26,11 @@ app.post('/api/v1/account/:initialBalance', async (req, res) => {
     res.end(JSON.stringify(await acc.createAccount(req.params.initialBalance), null, 3));
 });
 
+app.get('/api/v1/account/:accountId', async (req, res) => {
+    //res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(await acc.getAccountInfo(req.params.accountId), null, 3));
+});
+
 app.post('/api/v1/topic/', async (req, res) => {
     let topicId = await hcsService.createTopic();
     res.send({ topic: `${topicId}`});

@@ -107,6 +107,83 @@
           }
         }
       }
+    },
+    "/submitMessage": {
+      "post": {
+        "tags": [
+          "HCS"
+        ],
+        "summary": "Submit a message to a topic",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "topicId",
+            "type": "string",
+            "default": "0.0.3120640",
+            "description": "0.0.3120640"
+          },
+          {
+            "in": "query",
+            "name": "message",
+            "type": "string",
+            "default": "Hello Duy!",
+            "description": "test"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success or failure"
+          }
+        }
+      }
+    },
+    "/subscribe": {
+      "post": {
+        "tags": [
+          "HCS"
+        ],
+        "summary": "Subscribe Mirror Node to a topicId. Updates to topics will be printed to the console.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "topicId",
+            "type": "string",
+            "default": "0.0.3120640",
+            "description": "0.0.3120640"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success or failure"
+          }
+        }
+      }
+    },
+    "/topic/{topicId}": {
+      "get": {
+        "tags": [
+          "HCS"
+        ],
+        "summary": "Get info on a topic",
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "description": "topicId",
+            "type": "string",
+            "default": "0.0.2117",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TopicInfo",
+            "schema": {
+              "$ref": "#/definitions/TopicInfo"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -152,6 +229,52 @@
     "Users": {
       "type": "array",
       "$ref": "#/definitions/User"
+    },
+    "TopicInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "object",
+          "properties": {
+            "shard": {
+              "type": "number"
+            },
+            "realm": {
+              "type": "number"
+            },
+            "topic": {
+              "type": "number"
+            }
+          }
+        },
+        "topicMemo": {
+          "type": "string"
+        },
+        "runningHash": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "sequenceNumber": {
+          "type": "number"
+        },
+        "expirationTime": {
+          "type": "string"
+        },
+        "adminKey": {
+          "type": "string"
+        },
+        "submitKey": {
+          "type": "string"
+        },
+        "autoRenewPeriod": {
+          "type": "string"
+        },
+        "autoRenewAccountId": {
+          "type": "string"
+        }
+      }
     }
   }
 }

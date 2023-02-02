@@ -148,6 +148,9 @@ app.post('/api/v1/contract/call-method', async (req, res) => {
     }
 })
 // File Service
-app.post('/api/v1/file',  async (req, res) => {
+app.post('/api/v1/file/create',  async (req, res) => {
     res.send({fileID: await fileService.createFile(req.query.text)});
+});
+app.post('/api/v1/file/append',  async (req, res) => {
+    res.send({fileID: await fileService.appendFile(req.query.text)});
 });

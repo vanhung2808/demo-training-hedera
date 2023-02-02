@@ -63,9 +63,7 @@
             "name": "initialBalance",
             "in": "path",
             "description": "add this much tinyBars to the user.",
-            "schema": {
-              "type": "integer"
-            },
+            "type": "integer",
             "required": true
           }
         ],
@@ -76,7 +74,7 @@
         }
       }
     },
-    "/api/v1/contract": {
+    "/contract": {
       "post": {
         "tags": [
           "Hedera Contract"
@@ -105,7 +103,7 @@
         }
       }
     },
-    "/api/v1/contract/{contractId}": {
+    "/contract/{contractId}": {
       "get": {
         "tags": [
           "Hedera Contract"
@@ -116,9 +114,7 @@
             "name": "contractId",
             "in": "path",
             "description": "Contract id",
-            "schema": {
-              "type": "string"
-            },
+            "type": "string",
             "required": true
           }
         ],
@@ -138,9 +134,7 @@
             "name": "contractId",
             "in": "path",
             "description": "Contract id",
-            "schema": {
-              "type": "string"
-            },
+            "type": "string",
             "required": true
           }
         ],
@@ -151,7 +145,7 @@
         }
       }
     },
-    "/api/v1/contract/{contractId}/bytecode" : {
+    "/contract/{contractId}/bytecode" : {
       "get": {
         "tags": [
           "Hedera Contract"
@@ -162,9 +156,7 @@
             "name": "contractId",
             "in": "path",
             "description": "Contract id",
-            "schema": {
-              "type": "string"
-            },
+            "type": "string",
             "required": true
           }
         ],
@@ -175,7 +167,7 @@
         }
       }
     },
-    "/api/v1/contract/{contractId}/state-size" : {
+    "/contract/{contractId}/state-size" : {
       "get": {
         "tags": [
           "Hedera Contract"
@@ -186,9 +178,7 @@
             "name": "contractId",
             "in": "path",
             "description": "Contract id",
-            "schema": {
-              "type": "string"
-            },
+            "type": "string",
             "required": true
           }
         ],
@@ -199,7 +189,7 @@
         }
       }
     },
-    "/api/v1/contract/execute-transaction": {
+    "/contract/execute-transaction": {
       "post": {
         "tags": [
           "Hedera Contract"
@@ -237,7 +227,7 @@
         }
       }
     },
-    "/api/v1/contract/call-method": {
+    "/contract/call-method": {
       "post": {
         "tags": [
           "Hedera Contract"

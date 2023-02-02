@@ -1,181 +1,163 @@
-const { Client, PrivateKey, AccountCreateTransaction, AccountBalanceQuery, Hbar, ContractCreateFlow, ContractInfoQuery,
-    ContractDeleteTransaction, ContractByteCodeQuery, ContractExecuteTransaction, ContractFunctionParameters,
-    ContractCallQuery
+const {
+    ContractCreateFlow, ContractInfoQuery, ContractDeleteTransaction, ContractByteCodeQuery,
+    ContractExecuteTransaction, ContractFunctionParameters, ContractCallQuery
 } = require("@hashgraph/sdk");
+const BaseHederaService = require("./BaseHederaService.js");
 
-const myAccountId = !process.env.REACT_APP_MY_ACCOUNT_ID ? '0.0.2428967': process.env.REACT_APP_MY_ACCOUNT_ID;
-const myPrivateKey = !process.env.REACT_APP_MY_PRIVATE_KEY? 'b7fb238125019955e221a73e9861555e0096138dbd530735745b7ca24c268d59': process.env.REACT_APP_MY_PRIVATE_KEY;
+class ContractService extends BaseHederaService {
+    createContract({bytecode}) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                //Create the transaction
+                const contractCreate = new ContractCreateFlow()
+                    .setGas(100_000)
+                    .setBytecode(bytecode);
 
-// If we weren't able to grab it, we should throw a new error
-if (!myAccountId || !myPrivateKey) {
-    throw new Error("Environment variables MY_ACCOUNT_ID and MY_PRIVATE_KEY must be present");
-}
+                //Sign the transaction with the client operator key and submit to a Hedera network
+                const txResponse = await contractCreate.execute(this.getHederaClient());
 
-// Create our connection to the Hedera network
-// The Hedera JS SDK makes this really easy!
-const client = Client.forTestnet();
-client.setOperator(myAccountId, myPrivateKey);
+                //Get the receipt of the transaction
+                const receipt = (await txResponse).getReceipt(this.getHederaClient());
 
-function createContract({bytecode}) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            //Create the transaction
-            const contractCreate = new ContractCreateFlow()
-                .setGas(100_000)
-                .setBytecode(bytecode);
+                //Get the new contract ID
+                const newContractId = (await receipt).contractId;
 
-            //Sign the transaction with the client operator key and submit to a Hedera network
-            const txResponse = await contractCreate.execute(client);
+                const contractId = newContractId.toString();
 
-            //Get the receipt of the transaction
-            const receipt = (await txResponse).getReceipt(client);
+                console.log("The new contract ID is " + contractId);
 
-            //Get the new contract ID
-            const newContractId = (await receipt).contractId;
+                resolve({contractId});
+            } catch (e) {
+                reject(e);
+            }
+        })
+    }
 
-            const contractId = newContractId.toString();
+    getInfoContract({contractId}) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                //Create the query
+                const query = new ContractInfoQuery().setContractId(contractId);
 
-            console.log("The new contract ID is " + contractId);
+                const info = await query.execute(this.getHederaClient());
 
-            resolve({contractId});
-        } catch (e) {
-            reject(e);
-        }
-    })
-}
+                resolve({info});
+            } catch (e) {
+                reject(e);
+            }
+        })
+    }
 
-function getInfoContract({contractId}) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            //Create the query
-            const query = new ContractInfoQuery()
-                .setContractId(contractId);
+    deleteContract({contractId}) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                //Create the transaction
+                const transactionReceipt = await (await new ContractDeleteTransaction()
+                    .setContractId(contractId)
+                    .setTransferContractId(this.getHederaClient().operatorAccountId.toString())
+                    .execute(this.getHederaClient()))
+                    .getReceipt(this.getHederaClient());
+                const status = await transactionReceipt.status;
+                resolve({status});
 
-            const info = await query.execute(client);
+            } catch (e) {
+                reject(e);
+            }
+        })
+    }
 
-            resolve({info});
-        } catch (e) {
-            reject(e);
-        }
-    })
-}
-function deleteContract({contractId}) {
-    return new Promise( async (resolve, reject) => {
-        try {
-            //Create the transaction
-            const transactionReceipt = await (await new ContractDeleteTransaction()
-                .setContractId(contractId)
-                .setTransferContractId(myAccountId)
-                .execute(client))
-                .getReceipt(client);
-            const status = await transactionReceipt.status;
-            resolve({status});
+    getBytecodeContract({contractId}) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                //Create the query
+                const content = await new ContractByteCodeQuery()
+                    .setContractId(contractId)
+                    .execute(this.getHederaClient());
 
-        } catch (e) {
-            reject(e);
-        }
-    })
-}
+                const bytecode = content.toString('hex');
+                resolve({bytecode});
 
-function getBytecodeContract({contractId}) {
-    return new Promise( async (resolve, reject) => {
-        try {
-            //Create the query
-            const content = await new ContractByteCodeQuery()
-                .setContractId(contractId)
-                .execute(client);
+            } catch (e) {
+                reject(e);
+            }
+        })
+    }
 
-            const bytecode = content.toString('hex');
-            resolve({bytecode});
+    getStateSizeContract({contractId}) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                //Create the query
+                const query = new ContractInfoQuery()
+                    .setContractId(contractId);
 
-        } catch (e) {
-            reject(e);
-        }
-    })
-}
+                const info = await query.execute(this.getHederaClient());
+                const stateSize = info.storage.toNumber();
+                resolve({stateSize});
+            } catch (e) {
+                reject(e);
+            }
+        })
+    }
 
-function getStateSizeContract({contractId}) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            //Create the query
-            const query = new ContractInfoQuery()
-                .setContractId(contractId);
-
-            const info = await query.execute(client);
-            const stateSize = info.storage.toNumber();
-            resolve({stateSize});
-        } catch (e) {
-            reject(e);
-        }
-    })
-}
-
-function executeTransactionOnContract({contractId, functionName, argument, gasValue}) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const contractExecTxnId = await new ContractExecuteTransaction()
-                .setContractId(contractId)
-                .setGas(gasValue)
-                .setFunction(functionName, new ContractFunctionParameters().addString(argument))
-                .execute(client);
-
-            const receipt = await contractExecTxnId.getReceipt(client);
-            resolve({receipt})
-        } catch (e) {
-            reject(e);
-        }
-    })
-}
-
-function callMethodOnContract({contractId, functionName, argument, gasValue}) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            let contractCallResult;
-            if (null != argument) {
-                const cost = await new ContractCallQuery()
+    executeTransactionOnContract({contractId, functionName, argument, gasValue}) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const contractExecTxnId = await new ContractExecuteTransaction()
                     .setContractId(contractId)
                     .setGas(gasValue)
                     .setFunction(functionName, new ContractFunctionParameters().addString(argument))
-                    .getCost(client);
+                    .execute(this.getHederaClient());
 
-                const estimatedCost = await cost + cost / 50; // add 2% of this cost
-                contractCallResult = await new ContractCallQuery()
-                    .setContractId(contractId)
-                    .setQueryPayment(estimatedCost)
-                    .setGas(gasValue)
-                    .setFunction(functionName, new ContractFunctionParameters().addString(argument))
-                    .execute(client);
-            } else {
-                const cost = await new ContractCallQuery()
-                    .setContractId(contractId)
-                    .setGas(gasValue)
-                    .setFunction(functionName)
-                    .getCost(client);
-                const estimatedCost = await cost + cost / 50; // add 2% of this cost
-                contractCallResult = await new ContractCallQuery()
-                    .setContractId(contractId)
-                    .setQueryPayment(estimatedCost)
-                    .setGas(gasValue) //get this value from remix + trial and error on hedera.
-                    .setFunction(functionName)
-                    .execute(client);
+                const receipt = await contractExecTxnId.getReceipt(this.getHederaClient());
+                resolve({receipt})
+            } catch (e) {
+                reject(e);
             }
-            if (null != contractCallResult.errorMessage) {
-                reject(contractCallResult.errorMessage);
+        })
+    }
+
+    callMethodOnContract({contractId, functionName, argument, gasValue}) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let contractCallResult;
+                if (null != argument) {
+                    const cost = await new ContractCallQuery()
+                        .setContractId(contractId)
+                        .setGas(gasValue)
+                        .setFunction(functionName, new ContractFunctionParameters().addString(argument))
+                        .getCost(this.getHederaClient());
+
+                    const estimatedCost = await cost + cost / 50; // add 2% of this cost
+                    contractCallResult = await new ContractCallQuery()
+                        .setContractId(contractId)
+                        .setQueryPayment(estimatedCost)
+                        .setGas(gasValue)
+                        .setFunction(functionName, new ContractFunctionParameters().addString(argument))
+                        .execute(this.getHederaClient());
+                } else {
+                    const cost = await new ContractCallQuery()
+                        .setContractId(contractId)
+                        .setGas(gasValue)
+                        .setFunction(functionName)
+                        .getCost(this.getHederaClient());
+                    const estimatedCost = await cost + cost / 50; // add 2% of this cost
+                    contractCallResult = await new ContractCallQuery()
+                        .setContractId(contractId)
+                        .setQueryPayment(estimatedCost)
+                        .setGas(gasValue) //get this value from remix + trial and error on hedera.
+                        .setFunction(functionName)
+                        .execute(this.getHederaClient());
+                }
+                if (null != contractCallResult.errorMessage) {
+                    reject(contractCallResult.errorMessage);
+                }
+                const result = contractCallResult.getString(0);
+                resolve({result})
+            } catch (e) {
+                reject(e);
             }
-            const result = contractCallResult.getString(0);
-            resolve({result})
-        } catch (e) {
-            reject(e);
-        }
-    })
+        })
+    }
 }
 
-module.exports = {
-    createContract,
-    getInfoContract,
-    deleteContract,
-    getBytecodeContract,
-    getStateSizeContract,
-    executeTransactionOnContract,
-    callMethodOnContract
-};
+module.exports = ContractService;

@@ -317,6 +317,60 @@
         }
       }
     },
+    "/account": {
+      "delete": {
+        "tags": [
+          "Hedera Account"
+        ],
+        "summary": "Delete Hedera account",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "body",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "accountPrivateKey",
+            "in": "body",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/account/balance/{accountId}": {
+      "get": {
+        "tags": [
+          "Hedera Account"
+        ],
+        "summary": "Get balance of hedera account",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/users": {
       "get": {
         "tags": [

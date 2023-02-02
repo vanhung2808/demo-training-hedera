@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 const port = process.env.PORT || 5000;
 const bodyParser = require('body-parser');
 
@@ -35,9 +36,17 @@ app.post('/api/v1/account/:initialBalance', async (req, res) => {
     res.end(JSON.stringify(await acc.createAccount(req.params.initialBalance), null, 3));
 });
 
-app.get('/api/v1/account/:accountId', async (req, res) => {
-    //res.setHeader('Content-Type', 'application/json');
+app.get('/api/v1/account/info/:accountId', async (req, res) => {
     res.send(JSON.stringify(await acc.getAccountInfo(req.params.accountId), null, 3));
+});
+
+app.get('/api/v1/account/balance/:accountId', async (req, res) => {
+    res.send(JSON.stringify(await acc.getHbarAccountBalance(req.params.accountId), null, 3));
+});
+
+app.delete('/api/v1/account', async (req, res) => {
+    console.log(req.params);
+    res.send(JSON.stringify(await acc.deleteAccount(req.params.accountId, req.params.accountPrivateKey), null, 3));
 });
 
 app.post('/api/v1/topic/', async (req, res) => {

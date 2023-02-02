@@ -1,4 +1,4 @@
-const { Client, PrivateKey, AccountCreateTransaction, AccountBalanceQuery, Hbar} = require("@hashgraph/sdk");
+const { Client, PrivateKey, AccountCreateTransaction, AccountBalanceQuery, Hbar, AccountInfoQuery, AccountDeleteTransaction, TransferTransaction} = require("@hashgraph/sdk");
 const {Account: AccountService} = require("./models");
 module.exports = {
 
@@ -44,20 +44,16 @@ module.exports = {
         let obj = JSON.stringify(new AccountService(newAccountId, newAccountPrivateKey));
         console.log(obj);
         return new AccountService(newAccountId, newAccountPrivateKey);
-    }
+    },
 
     getAccountInfo: async function(accountId) {
-        //Grab your Hedera testnet account ID and private key from your .env file
         const myAccountId = !process.env.REACT_APP_MY_ACCOUNT_ID ? '0.0.2428967': process.env.REACT_APP_MY_ACCOUNT_ID;
         const myPrivateKey = !process.env.REACT_APP_MY_PRIVATE_KEY? 'b7fb238125019955e221a73e9861555e0096138dbd530735745b7ca24c268d59': process.env.REACT_APP_MY_PRIVATE_KEY;
 
-        // If we weren't able to grab it, we should throw a new error
         if (!myAccountId || !myPrivateKey) {
             throw new Error("Environment variables MY_ACCOUNT_ID and MY_PRIVATE_KEY must be present");
         }
-        console.log(myAccountId)
 
-        // Create our connection to the Hedera network
         const client = Client.forTestnet();
         client.setOperator(myAccountId, myPrivateKey);
 
@@ -71,6 +67,90 @@ module.exports = {
         //Print the account info to the console
         console.log(accountInfo);
         return accountInfo;
+    },
+
+    deleteAccount: async function(accountId, accountPrivateKey) {
+        const myAccountId = !process.env.REACT_APP_MY_ACCOUNT_ID ? '0.0.2428967': process.env.REACT_APP_MY_ACCOUNT_ID;
+        const myPrivateKey = !process.env.REACT_APP_MY_PRIVATE_KEY? 'b7fb238125019955e221a73e9861555e0096138dbd530735745b7ca24c268d59': process.env.REACT_APP_MY_PRIVATE_KEY;
+
+        if (!myAccountId || !myPrivateKey) {
+            throw new Error("Environment variables MY_ACCOUNT_ID and MY_PRIVATE_KEY must be present");
+        }
+
+        const client = Client.forTestnet();
+        client.setOperator(myAccountId, myPrivateKey);
+
+        //Create the transaction to delete an account
+        const transaction = await new AccountDeleteTransaction()
+            .setAccountId(accountId)
+            .setTransferAccountId(myAccountId)
+            .freezeWith(client);
+
+        //Sign the transaction with the account key
+        const signTx = await transaction.sign(accountPrivateKey);
+
+        //Sign with the client operator private key and submit to a Hedera network
+        const txResponse = await signTx.execute(client);
+
+        //Request the receipt of the transaction
+        const receipt = await txResponse.getReceipt(client);
+
+        //Get the transaction consensus status
+        const transactionStatus = receipt.status;
+
+        console.log("The transaction consensus status is " +transactionStatus);
+
+        return transactionStatus;
+    },
+
+    getHbarAccountBalance: async function(accountId) {
+        const myAccountId = !process.env.REACT_APP_MY_ACCOUNT_ID ? '0.0.2428967': process.env.REACT_APP_MY_ACCOUNT_ID;
+        const myPrivateKey = !process.env.REACT_APP_MY_PRIVATE_KEY? 'b7fb238125019955e221a73e9861555e0096138dbd530735745b7ca24c268d59': process.env.REACT_APP_MY_PRIVATE_KEY;
+
+        if (!myAccountId || !myPrivateKey) {
+            throw new Error("Environment variables MY_ACCOUNT_ID and MY_PRIVATE_KEY must be present");
+        }
+
+        const client = Client.forTestnet();
+        client.setOperator(myAccountId, myPrivateKey);
+
+        //Create the account balance query
+        const query = new AccountBalanceQuery()
+            .setAccountId(accountId);
+
+        //Submit the query to a Hedera network
+        const accountBalance = await query.execute(client);
+
+        //Print the balance of hbars
+        console.log("The hbar account balance for this account is " +accountBalance.hbars);
+        return accountBalance.hbars;
+    },
+
+    transferHbars: async function(request) {
+        const myAccountId = !process.env.REACT_APP_MY_ACCOUNT_ID ? '0.0.2428967': process.env.REACT_APP_MY_ACCOUNT_ID;
+        const myPrivateKey = !process.env.REACT_APP_MY_PRIVATE_KEY? 'b7fb238125019955e221a73e9861555e0096138dbd530735745b7ca24c268d59': process.env.REACT_APP_MY_PRIVATE_KEY;
+
+        if (!myAccountId || !myPrivateKey) {
+            throw new Error("Environment variables MY_ACCOUNT_ID and MY_PRIVATE_KEY must be present");
+        }
+
+        const client = Client.forTestnet();
+        client.setOperator(myAccountId, myPrivateKey);
+
+        // Create a transaction to transfer 100 hbars
+        const transaction = new TransferTransaction()
+            .addHbarTransfer(OPERATOR_ID, new Hbar(-100))
+            .addHbarTransfer(newAccountId, new Hbar(100));
+
+        //Submit the transaction to a Hedera network
+        const txResponse = await transaction.execute(client);
+
+        //Request the receipt of the transaction
+        const receipt = await txResponse.getReceipt(client);
+
+        //Get the transaction consensus status
+        const transactionStatus = receipt.status;
+
+        console.log("The transaction consensus status is " +transactionStatus.toString());
     }
-    //throws HederaStatusException
 }

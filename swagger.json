@@ -76,6 +76,205 @@
         }
       }
     },
+    "/api/v1/contract": {
+      "post": {
+        "tags": [
+          "Hedera Contract"
+        ],
+        "summary": "Deploy a contract on hedera.",
+        "parameters": [
+          {
+            "name": "bytecode",
+            "in": "body",
+            "description": "bytecode",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "bytecode": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/contract/{contractId}": {
+      "get": {
+        "tags": [
+          "Hedera Contract"
+        ],
+        "summary": "Get info a contract on hedera.",
+        "parameters": [
+          {
+            "name": "contractId",
+            "in": "path",
+            "description": "Contract id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Hedera Contract"
+        ],
+        "summary": "Delete a contract on hedera.",
+        "parameters": [
+          {
+            "name": "contractId",
+            "in": "path",
+            "description": "Contract id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/contract/{contractId}/bytecode" : {
+      "get": {
+        "tags": [
+          "Hedera Contract"
+        ],
+        "summary": "Get bytecode a contract on hedera.",
+        "parameters": [
+          {
+            "name": "contractId",
+            "in": "path",
+            "description": "Contract id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/contract/{contractId}/state-size" : {
+      "get": {
+        "tags": [
+          "Hedera Contract"
+        ],
+        "summary": "Get state size a contract on hedera.",
+        "parameters": [
+          {
+            "name": "contractId",
+            "in": "path",
+            "description": "Contract id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/contract/execute-transaction": {
+      "post": {
+        "tags": [
+          "Hedera Contract"
+        ],
+        "summary": "Execute a transaction on a contract that takes in a string argument.",
+        "parameters": [
+          {
+            "name": "requestDTO",
+            "in": "body",
+            "description": "DTO to execute a transaction on a contract",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "contractId": {
+                  "type": "string"
+                },
+                "functionName": {
+                  "type": "string"
+                },
+                "argument": {
+                  "type": "string"
+                },
+                "gasValue": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/contract/call-method": {
+      "post": {
+        "tags": [
+          "Hedera Contract"
+        ],
+        "summary": "Call a method on a contract that takes in a string argument and returns string.",
+        "parameters": [
+          {
+            "name": "requestDTO",
+            "in": "body",
+            "description": "DTO to execute a transaction on a contract",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "contractId": {
+                  "type": "string"
+                },
+                "functionName": {
+                  "type": "string"
+                },
+                "argument": {
+                  "type": "string"
+                },
+                "gasValue": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/users": {
       "get": {
         "tags": [

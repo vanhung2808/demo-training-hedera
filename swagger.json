@@ -374,7 +374,7 @@
         }
       }
     },
-    "/file": {
+    "/file/create": {
       "post": {
         "tags": [
           "File controller"
@@ -396,8 +396,87 @@
           }
         }
       }
+    },
+    "/file/append": {
+      "post": {
+        "tags": [
+          "File controller"
+        ],
+        "summary": "Append a File.",
+        "parameters": [
+          {
+            "in": "query",
+            "required": true,
+            "name": "text",
+            "type": "string",
+            "default": "Testing",
+            "description": "Adding text to file..."
+          },
+          {
+            "in": "query",
+            "required": true,
+            "name": "fileID",
+            "type": "string",
+            "default": "0.0.3327503",
+            "description": "File ID..."
+          }
+
+        ],
+        "responses": {
+          "200": {
+            "description": "File ID"
+          }
+        }
+      }
+    },
+    "/file/getcontent": {
+      "post": {
+        "tags": [
+          "File controller"
+        ],
+        "summary": "Get file content.",
+        "parameters": [
+          {
+            "in": "query",
+            "required": true,
+            "name": "fileID",
+            "type": "string",
+            "default": "0.0.3327503",
+            "description": "Get file content..."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File ID"
+          }
+        }
+      }
+    },
+    "/file/getinfo": {
+      "post": {
+        "tags": [
+          "File controller"
+        ],
+        "summary": "Get file info.",
+        "parameters": [
+          {
+            "in": "query",
+            "required": true,
+            "name": "fileID",
+            "type": "string",
+            "default": "0.0.3327503",
+            "description": "Get file info..."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File info"
+          }
+        }
+      }
     }
   },
+
   "definitions": {
     "User": {
       "required": [

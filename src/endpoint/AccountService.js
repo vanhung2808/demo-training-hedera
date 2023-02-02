@@ -1,5 +1,5 @@
 const { Client, PrivateKey, AccountCreateTransaction, AccountBalanceQuery, Hbar} = require("@hashgraph/sdk");
-const {Account: AccountService} = require("./DTOs");
+const {Account: AccountService} = require("./models");
 module.exports = {
 
      createAccount: async function(initialBalance) {

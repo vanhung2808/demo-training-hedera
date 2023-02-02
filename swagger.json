@@ -373,6 +373,29 @@
           }
         }
       }
+    },
+    "/file": {
+      "post": {
+        "tags": [
+          "File controller"
+        ],
+        "summary": "Create a File.",
+        "parameters": [
+          {
+            "in": "query",
+            "required": true,
+            "name": "text",
+            "type": "string",
+            "default": "Testing",
+            "description": "Adding text to file..."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File ID"
+          }
+        }
+      }
     }
   },
   "definitions": {

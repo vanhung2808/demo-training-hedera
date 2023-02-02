@@ -6,7 +6,9 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 const acc = require('./src/endpoint/AccountService.js');
 const HCSService = require('./src/endpoint/HCSService.js');
+const FileService = require('./src/endpoint/FileService.js');
 const hcsService = new HCSService();
+const fileService = new FileService();
 
 app.use(
     '/api-docs',
@@ -45,4 +47,9 @@ app.post('/api/v1/submitMessage', async (req, res) => {
 app.post('/api/v1/subscribe',  (req, res) => {
     let result = hcsService.subscribeToTopic(req.query.topicId);
     res.send({ message: result ? "New messages in this topics will be printed to the console..." : "Subscription failed"});
+});
+
+// File Service
+app.post('/api/v1/file',  async (req, res) => {
+    res.send({fileID: await fileService.createFile(req.query.text)});
 });

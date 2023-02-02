@@ -54,5 +54,11 @@ app.post('/api/v1/file/create',  async (req, res) => {
     res.send({fileID: await fileService.createFile(req.query.text)});
 });
 app.post('/api/v1/file/append',  async (req, res) => {
-    res.send({fileID: await fileService.appendFile(req.query.text)});
+    res.send({result: await fileService.appendFile(req.query.text,req.query.fileID)});
+});
+app.post('/api/v1/file/getcontent',  async (req, res) => {
+    res.send({result: await fileService.getContent(req.query.fileID)});
+});
+app.post('/api/v1/file/getinfo',  async (req, res) => {
+    res.send({result: await fileService.getInfo(req.query.fileID)});
 });

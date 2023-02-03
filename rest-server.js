@@ -9,8 +9,10 @@ const acc = require('./src/endpoint/AccountService.js');
 const HCSService = require("./src/endpoint/HCSService.js");
 const ContractService = require("./src/endpoint/ContractService.js");
 
+const FileService = require('./src/endpoint/FileService.js');
 const hcsService = new HCSService();
 const contractService = new ContractService();
+const fileService = new FileService();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -145,3 +147,16 @@ app.post('/api/v1/contract/call-method', async (req, res) => {
         res.status(500).send({error : e.toString()});
     }
 })
+// File Service
+app.post('/api/v1/file/create',  async (req, res) => {
+    res.send({fileID: await fileService.createFile(req.query.text)});
+});
+app.post('/api/v1/file/append',  async (req, res) => {
+    res.send({result: await fileService.appendFile(req.query.text,req.query.fileID)});
+});
+app.post('/api/v1/file/getcontent',  async (req, res) => {
+    res.send({result: await fileService.getContent(req.query.fileID)});
+});
+app.post('/api/v1/file/getinfo',  async (req, res) => {
+    res.send({result: await fileService.getInfo(req.query.fileID)});
+});

@@ -18,6 +18,9 @@ const fileService = new FileService();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
 app.use(
     '/api-docs',
     swaggerUi.serve,
@@ -45,8 +48,38 @@ app.get('/api/v1/account/balance/:accountId', async (req, res) => {
 });
 
 app.delete('/api/v1/account', async (req, res) => {
-    console.log(req.params);
-    res.send(JSON.stringify(await acc.deleteAccount(req.params.accountId, req.params.accountPrivateKey), null, 3));
+    const {
+        newAccountId,
+        accountPrivateKey
+    } = req.body
+
+    try {
+        const data = await acc.deleteAccount({newAccountId, accountPrivateKey});
+        console.log('Execute account deleting', 'SUCCESS', data);
+        res.status(200).send(data)
+    } catch (e) {
+        console.log('Execute account deleting', 'ERROR', {e});
+        res.status(500).send({e});
+    }
+});
+
+app.post('/api/v1/account/transaction/cryptoTransfer', async (req, res) => {
+    const {
+        amount,
+        memo,
+        senderId,
+        senderPrivateKey,
+        receiverId
+    } = req.body
+
+    try {
+        const data = await acc.transferHbars({amount, memo, senderId, senderPrivateKey, receiverId});
+        console.log('Execute transfer Hbars', 'SUCCESS', data);
+        res.status(200).send(data)
+    } catch (e) {
+        console.log('Execute transfer Hbars', 'ERROR', {e});
+        res.status(500).send({e});
+    }
 });
 
 app.post('/api/v1/topic/', async (req, res) => {

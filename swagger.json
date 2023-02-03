@@ -325,18 +325,19 @@
         "summary": "Delete Hedera account",
         "parameters": [
           {
-            "name": "accountId",
+            "name": "requestDTO",
             "in": "body",
+            "description": "DTO to execute a deleting account transaction",
             "schema": {
-              "type": "string"
-            },
-            "required": true
-          },
-          {
-            "name": "accountPrivateKey",
-            "in": "body",
-            "schema": {
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "newAccountId": {
+                  "type": "string"
+                },
+                "accountPrivateKey": {
+                  "type": "string"
+                }
+              }
             },
             "required": true
           }
@@ -360,6 +361,49 @@
             "in": "path",
             "schema": {
               "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/account/transaction/cryptoTransfer": {
+      "post": {
+        "tags": [
+          "Hedera Account"
+        ],
+        "summary": "Transfer Hbars between 2 accounts.",
+        "parameters": [
+          {
+            "name": "requestDTO",
+            "in": "body",
+            "description": "DTO to execute a transaction on an account",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "amount": {
+                  "type": "number",
+                  "required": [true]
+                },
+                "memo": {
+                  "type": "string"
+                },
+                "senderId": {
+                  "type": "string"
+                },
+                "senderPrivateKey": {
+                  "type": "string"
+                },
+                "receiverId": {
+                  "type": "string",
+                  "required": [true]
+                }
+              }
             },
             "required": true
           }

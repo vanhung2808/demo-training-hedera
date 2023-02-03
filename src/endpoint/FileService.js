@@ -1,8 +1,8 @@
 const {
-    FileCreateTransaction, Hbar, PrivateKey, Key, PublicKey, FileId, FileAppendTransaction, FileContentsQuery,
-    FileInfoQuery
+    FileCreateTransaction, Hbar, PrivateKey, FileId, FileAppendTransaction, FileContentsQuery, FileInfoQuery
 } = require("@hashgraph/sdk");
 const BaseHederaService = require('./BaseHederaService.js');
+
 class FileService extends BaseHederaService {
     async createFile(text) {
 
@@ -28,7 +28,6 @@ class FileService extends BaseHederaService {
     }
 
     async appendFile(text, fileID) {
-        const fileId = FileId.fromString(fileID);
         const client = this.getHederaClient();
         //const filePublicKey = client.operatorPublicKey;
         const filePrivateKey = PrivateKey.fromStringED25519('b7fb238125019955e221a73e9861555e0096138dbd530735745b7ca24c268d59');
@@ -38,22 +37,21 @@ class FileService extends BaseHederaService {
             .setMaxTransactionFee(new Hbar(2))
             .freezeWith(client);
 
-//Sign with the file private key
+        //Sign with the file private key
         const signTx = await transaction.sign(filePrivateKey);
 
-//Sign with the client operator key and submit to a Hedera network
+        //Sign with the client operator key and submit to a Hedera network
         const txResponse = await signTx.execute(client);
 
-//Request the receipt
+        //Request the receipt
         const receipt = await txResponse.getReceipt(client);
 
-//Get the transaction consensus status
+        //Get the transaction consensus status
         const transactionStatus = receipt.status;
         return {"status": transactionStatus};
     }
 
     async getContent(fileID) {
-        const fileId = FileId.fromString(fileID);
         const client = this.getHederaClient();
         const query = new FileContentsQuery()
             .setFileId(fileID);
@@ -67,11 +65,11 @@ class FileService extends BaseHederaService {
             .setFileId(fileId);
         const client = this.getHederaClient();
 
-//Sign the query with the client operator private key and submit to a Hedera network
+        //Sign the query with the client operator private key and submit to a Hedera network
         const getInfo = await query.execute(client);
 
         console.log("File info response: " + getInfo);
-        return {"file info" : getInfo};
+        return {"file info": getInfo};
     }
 }
 

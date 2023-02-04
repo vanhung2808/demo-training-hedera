@@ -379,7 +379,7 @@
         "tags": [
           "File controller"
         ],
-        "summary": "Create a File.",
+        "summary": "Store the Smart Contract Bytecode on Hedera.",
         "parameters": [
           {
             "in": "query",
@@ -387,7 +387,7 @@
             "name": "text",
             "type": "string",
             "default": "Testing",
-            "description": "Adding text to file..."
+            "description": "Bytecode"
           }
         ],
         "responses": {

@@ -7,24 +7,25 @@ class FileService extends BaseHederaService {
     async createFile(text) {
 
         const client = this.getHederaClient();
-        const filePrivateKey = PrivateKey.fromStringED25519('b7fb238125019955e221a73e9861555e0096138dbd530735745b7ca24c268d59');
-        const transaction = await new FileCreateTransaction()
-            .setKeys([filePrivateKey]) //A different key then the client operator key
+        const operatorKey = PrivateKey.fromStringED25519('b7fb238125019955e221a73e9861555e0096138dbd530735745b7ca24c268d59');
+        const fileCreateTx = await new FileCreateTransaction()
+            .setKeys([operatorKey]) //A different key then the client operator key
             .setContents(text)
             .setMaxTransactionFee(new Hbar(2))
             .freezeWith(client);
         //Sign with the file private key
-        const signTx = await transaction.sign(filePrivateKey);
+        const fileCreateSign = await fileCreateTx.sign(operatorKey);
 
         //Sign with the client operator private key and submit to a Hedera network
-        const submitTx = await signTx.execute(client);
+        const fileCreateSubmit = await fileCreateSign.execute(client);
 
         //Request the receipt
-        const receipt = await submitTx.getReceipt(client);
+        const fileCreateRx = await fileCreateSubmit.getReceipt(client);
 
         //Get the file ID
-        console.log("The new file ID is: " + receipt.fileId);
-        return receipt.fileId.toString();
+        const bytecodeFileId = fileCreateRx.fileId;
+        console.log("The new file ID is: " + bytecodeFileId);
+        return bytecodeFileId.toString();
     }
 
     async appendFile(text, fileID) {

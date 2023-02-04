@@ -9,5 +9,13 @@ module.exports = {
             this.publicKey = privateKey.publicKey.toString();
             this.solidityAddress = accountId.toSolidityAddress();
         }
+    },
+
+    Contract: class {
+
+        constructor(contractId, contractAddress) {
+            this.contractId = contractId;
+            this.contractAddress = contractAddress;
+        }
     }
 }

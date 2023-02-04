@@ -57,14 +57,14 @@ app.post('/api/v1/subscribe',  (req, res) => {
 });
 
 app.post('/api/v1/contract', async (req, res) => {
-    const bytecode = req.body.bytecode;
+    const bytecodeFileId = req.body.bytecodeFileId;
     try {
-        const data = await contractService.createContract({bytecode});
-        console.log('Create contract', 'SUCCESS', data);
-        res.status(200).send(data)
+        const contract = await contractService.createContract({bytecodeFileId});
+        console.log('Create contract', 'SUCCESS', contract);
+        res.status(200).send(contract);
     } catch (e) {
         console.log('Create contract', 'ERROR', {e});
-        res.status(500).send({error : e.toString()});
+        res.status(500).send(e.toString());
     }
 })
 

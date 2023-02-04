@@ -1,32 +1,26 @@
 const {
-    ContractCreateFlow, ContractInfoQuery, ContractDeleteTransaction, ContractByteCodeQuery,
-    ContractExecuteTransaction, ContractFunctionParameters, ContractCallQuery
+    ContractInfoQuery, ContractDeleteTransaction, ContractByteCodeQuery,
+    ContractExecuteTransaction, ContractFunctionParameters, ContractCallQuery, ContractCreateTransaction
 } = require("@hashgraph/sdk");
 const BaseHederaService = require("./BaseHederaService.js");
+const {Contract} = require("./models");
 
 class ContractService extends BaseHederaService {
-    createContract({bytecode}) {
+    createContract({bytecodeFileId}) {
         return new Promise(async (resolve, reject) => {
             try {
-                //Create the transaction
-                const contractCreate = new ContractCreateFlow()
-                    .setGas(100_000)
-                    .setBytecode(bytecode);
-
-                //Sign the transaction with the client operator key and submit to a Hedera network
-                const txResponse = await contractCreate.execute(this.getHederaClient());
-
-                //Get the receipt of the transaction
-                const receipt = (await txResponse).getReceipt(this.getHederaClient());
-
-                //Get the new contract ID
-                const newContractId = (await receipt).contractId;
-
-                const contractId = newContractId.toString();
-
-                console.log("The new contract ID is " + contractId);
-
-                resolve({contractId});
+                // Instantiate the smart contract
+                const contractInstantiateTx = new ContractCreateTransaction()
+                    .setBytecodeFileId(bytecodeFileId)
+                    .setGas(100000)
+                    .setConstructorParameters(new ContractFunctionParameters().addString("Alice").addUint256(111111));
+                const contractInstantiateSubmit = await contractInstantiateTx.execute(this.getHederaClient());
+                const contractInstantiateRx = await contractInstantiateSubmit.getReceipt(this.getHederaClient());
+                const contractId = contractInstantiateRx.contractId;
+                const contractAddress = contractId.toSolidityAddress();
+                console.log(`- The smart contract ID is: ${contractId}`);
+                console.log(`- Smart contract ID in Solidity format: ${contractAddress}`);
+                resolve(new Contract(`${contractId}`, `${contractAddress}`));
             } catch (e) {
                 reject(e);
             }

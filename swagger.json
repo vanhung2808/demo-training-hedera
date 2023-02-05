@@ -331,7 +331,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "newAccountId": {
+                "accountId": {
                   "type": "string"
                 },
                 "accountPrivateKey": {

@@ -1,23 +1,15 @@
-const { Client, PrivateKey, AccountCreateTransaction, AccountBalanceQuery, Hbar, AccountInfoQuery, AccountDeleteTransaction, CryptoTransferTransaction, TransferTransaction} = require("@hashgraph/sdk");
-const {Account: AccountService} = require("./models");
+const {
+    Client, PrivateKey, AccountCreateTransaction, AccountBalanceQuery, Hbar, AccountInfoQuery, AccountDeleteTransaction,
+    TransferTransaction
+} = require("@hashgraph/sdk");
+const BaseHederaService = require("./BaseHederaService.js");
+const myAccountId = !process.env.REACT_APP_MY_ACCOUNT_ID ? '0.0.2428967' : process.env.REACT_APP_MY_ACCOUNT_ID;
+// const {Account: AccountService} = require("./models");
 
-//Grab your Hedera testnet account ID and private key from your .env file
-const myAccountId = !process.env.REACT_APP_MY_ACCOUNT_ID ? '0.0.2428967': process.env.REACT_APP_MY_ACCOUNT_ID;
-const myPrivateKey = !process.env.REACT_APP_MY_PRIVATE_KEY? 'b7fb238125019955e221a73e9861555e0096138dbd530735745b7ca24c268d59': process.env.REACT_APP_MY_PRIVATE_KEY;
+class AccountService extends BaseHederaService {
+    async createAccount(initialBalance) {
+        const client = this.getHederaClient();
 
-// If we weren't able to grab it, we should throw a new error
-if (!myAccountId || !myPrivateKey) {
-    throw new Error("Environment variables MY_ACCOUNT_ID and MY_PRIVATE_KEY must be present");
-}
-
-// Create our connection to the Hedera network
-// The Hedera JS SDK makes this really easy!
-const client = Client.forTestnet();
-client.setOperator(myAccountId, myPrivateKey);
-
-module.exports = {
-
-     createAccount: async function(initialBalance) {
         //Create new keys
         const newAccountPrivateKey = PrivateKey.generateED25519();
         const newAccountPublicKey = newAccountPrivateKey.publicKey;
@@ -40,12 +32,22 @@ module.exports = {
             .execute(client);
 
         console.log("The new account balance is: " + accountBalance.hbars.toTinybars() + " tinybar.");
-        let obj = JSON.stringify(new AccountService(newAccountId, newAccountPrivateKey));
+        /*let obj = JSON.stringify(new AccountService(newAccountId, newAccountPrivateKey));
         console.log(obj);
-        return new AccountService(newAccountId, newAccountPrivateKey);
-    },
+        return new AccountService(newAccountId, newAccountPrivateKey);*/
+        let obj = {
+            accountId: newAccountId.toString(),
+            accountKey: newAccountPrivateKey.toString(),
+            accountPublicKey: newAccountPublicKey.toString(),
+            solidityAddress: newAccountId.toSolidityAddress()
+        };
+        console.log(obj);
+        return obj;
+    }
 
-    getAccountInfo: async function(accountId) {
+    async getAccountInfo(accountId) {
+        const client = this.getHederaClient();
+
         //Create the account info query
         const query = new AccountInfoQuery()
             .setAccountId(accountId);
@@ -56,12 +58,14 @@ module.exports = {
         //Print the account info to the console
         console.log(accountInfo);
         return accountInfo;
-    },
+    }
 
-    deleteAccount: async function(newAccountId, accountPrivateKey) {
+    async deleteAccount(accountId, accountPrivateKey) {
+        const client = this.getHederaClient();
+
         //Create the transaction to delete an account
         const transaction = await new AccountDeleteTransaction()
-            .setAccountId(newAccountId)
+            .setAccountId(accountId)
             .setTransferAccountId(myAccountId)
             .freezeWith(client);
 
@@ -80,9 +84,11 @@ module.exports = {
         console.log("The transaction consensus status is " +transactionStatus);
 
         return transactionStatus;
-    },
+    }
 
-    getHbarAccountBalance: async function(accountId) {
+    async getHbarAccountBalance(accountId) {
+        const client = this.getHederaClient();
+
         //Create the account balance query
         const query = new AccountBalanceQuery()
             .setAccountId(accountId);
@@ -93,9 +99,11 @@ module.exports = {
         //Print the balance of hbars
         console.log("The hbar account balance for this account is " +accountBalance.hbars);
         return accountBalance.hbars;
-    },
+    }
 
-    transferHbars: async function({amount, memo, senderId, senderPrivateKey, receiverId}) {
+    async transferHbars({amount, memo, senderId, senderPrivateKey, receiverId}) {
+        const client = this.getHederaClient();
+
         let _client;
         let _senderId;
         const _memo = memo == null ? "" : memo;
@@ -124,3 +132,5 @@ module.exports = {
         return transactionStatus.toString();
     }
 }
+
+module.exports = AccountService;

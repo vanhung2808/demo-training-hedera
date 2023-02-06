@@ -60,7 +60,7 @@ class AccountService extends BaseHederaService {
         return accountInfo;
     }
 
-    async deleteAccount(accountId, accountPrivateKey) {
+    async deleteAccount({accountId, accountPrivateKey}) {
         const client = this.getHederaClient();
 
         //Create the transaction to delete an account
@@ -69,8 +69,9 @@ class AccountService extends BaseHederaService {
             .setTransferAccountId(myAccountId)
             .freezeWith(client);
 
+        const privateKey = PrivateKey.fromStringED25519(accountPrivateKey);
         //Sign the transaction with the account key
-        const signTx = await transaction.sign(accountPrivateKey);
+        const signTx = await transaction.sign(privateKey);
 
         //Sign with the client operator private key and submit to a Hedera network
         const txResponse = await signTx.execute(client);
@@ -81,9 +82,9 @@ class AccountService extends BaseHederaService {
         //Get the transaction consensus status
         const transactionStatus = receipt.status;
 
-        console.log("The transaction consensus status is " +transactionStatus);
+        console.log("The transaction consensus status is " +transactionStatus.toString());
 
-        return transactionStatus;
+        return transactionStatus.toString();
     }
 
     async getHbarAccountBalance(accountId) {

@@ -55,7 +55,7 @@ app.delete('/api/v1/account', async (req, res) => {
 
     try {
         const data = await accountService.deleteAccount({accountId, accountPrivateKey});
-        console.log('Execute account deleting', 'SUCCESS', data);
+        console.log('Execute account deleting', data);
         res.status(200).send(data)
     } catch (e) {
         console.log('Execute account deleting', 'ERROR', {e});

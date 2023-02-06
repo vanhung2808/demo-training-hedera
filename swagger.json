@@ -103,6 +103,35 @@
         }
       }
     },
+    "/contract/addBytecode": {
+      "post": {
+        "tags": [
+          "Hedera Contract"
+        ],
+        "summary": "Add the Bytecode File to Hedera (and Create a Token!).",
+        "parameters": [
+          {
+            "name": "bytecode",
+            "in": "body",
+            "description": "bytecode",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "bytecode": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/contract/{contractId}": {
       "get": {
         "tags": [
@@ -392,7 +421,10 @@
         ],
         "responses": {
           "200": {
-            "description": "File ID"
+            "description": "TokenInfo",
+            "schema": {
+              "$ref": "#/definitions/TokenInfo"
+            }
           }
         }
       }
@@ -564,6 +596,25 @@
         },
         "autoRenewAccountId": {
           "type": "string"
+        }
+      }
+    },
+    "TokenInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "object",
+          "properties": {
+            "tokenId": {
+              "type": "string"
+            },
+            "tokenAddressSol": {
+              "type": "string"
+            },
+            "totalSupplyLow": {
+              "type": "string"
+            }
+          }
         }
       }
     }

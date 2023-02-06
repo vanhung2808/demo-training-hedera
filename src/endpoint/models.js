@@ -17,5 +17,14 @@ module.exports = {
             this.contractId = contractId;
             this.contractAddress = contractAddress;
         }
+    },
+
+    TokenInfo: class {
+
+        constructor(tokenId, tokenAddressSol, totalSupplyLow) {
+            this.tokenId = tokenId;
+            this.tokenAddressSol = tokenAddressSol;
+            this.totalSupplyLow = totalSupplyLow;
+        }
     }
 }

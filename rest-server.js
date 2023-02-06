@@ -160,3 +160,16 @@ app.post('/api/v1/file/getcontent',  async (req, res) => {
 app.post('/api/v1/file/getinfo',  async (req, res) => {
     res.send({result: await fileService.getInfo(req.query.fileID)});
 });
+
+app.post('/api/v1/contract/addBytecode', async (req, res) => {
+    console.log('Add the Bytecode File to Hedera (and Create a Token!)');
+    const bytecode = req.body.bytecode;
+    try {
+        const tokenInfo = await fileService.addBytecodeFileToHedera({bytecode});
+        console.log('Token Info:', 'SUCCESS', tokenInfo);
+        res.status(200).send(tokenInfo);
+    } catch (e) {
+        console.log('Create Token Info:', 'ERROR', {e});
+        res.status(500).send(e.toString());
+    }
+})

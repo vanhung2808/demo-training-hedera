@@ -1,20 +1,21 @@
 const {
-    FileCreateTransaction, Hbar, PrivateKey, FileId, FileAppendTransaction, FileContentsQuery, FileInfoQuery
+    FileCreateTransaction, Hbar, PrivateKey, FileId, FileAppendTransaction, FileContentsQuery, FileInfoQuery,
+    TokenCreateTransaction, TokenInfoQuery, Client, AccountId
 } = require("@hashgraph/sdk");
 const BaseHederaService = require('./BaseHederaService.js');
+const {TokenInfo} = require("./models");
 
 class FileService extends BaseHederaService {
     async createFile(text) {
 
         const client = this.getHederaClient();
-        const operatorKey = PrivateKey.fromStringED25519('b7fb238125019955e221a73e9861555e0096138dbd530735745b7ca24c268d59');
         const fileCreateTx = await new FileCreateTransaction()
-            .setKeys([operatorKey]) //A different key then the client operator key
+            .setKeys([this.operatorKey]) //A different key then the client operator key
             .setContents(text)
             .setMaxTransactionFee(new Hbar(2))
             .freezeWith(client);
         //Sign with the file private key
-        const fileCreateSign = await fileCreateTx.sign(operatorKey);
+        const fileCreateSign = await fileCreateTx.sign(this.operatorKey);
 
         //Sign with the client operator private key and submit to a Hedera network
         const fileCreateSubmit = await fileCreateSign.execute(client);
@@ -28,10 +29,45 @@ class FileService extends BaseHederaService {
         return bytecodeFileId.toString();
     }
 
+    async tQueryFcn(tId) {
+        let info = await new TokenInfoQuery().setTokenId(tId).execute(this.client);
+        return info;
+    }
+
+    addBytecodeFileToHedera({bytecode}) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                //Create a fungible token
+                const tokenCreateTx = await new TokenCreateTransaction()
+                    .setTokenName("hbarRocks")
+                    .setTokenSymbol("HROK")
+                    .setDecimals(0)
+                    .setInitialSupply(100)
+                    .setTreasuryAccountId(this.operatorId)
+                    .setAdminKey(this.treasuryKey)
+                    .setSupplyKey(this.treasuryKey)
+                    .freezeWith(this.client)
+                    .sign(this.treasuryKey);
+                const tokenCreateSubmit = await tokenCreateTx.execute(this.client);
+                const tokenCreateRx = await tokenCreateSubmit.getReceipt(this.client);
+                const tokenId = tokenCreateRx.tokenId;
+                const tokenAddressSol = tokenId.toSolidityAddress();
+                console.log(`- Token ID: ${tokenId}`);
+                console.log(`- Token ID in Solidity format: ${tokenAddressSol}`);
+
+                // Token query 1
+                const tokenInfo1 = await this.tQueryFcn(tokenId);
+                console.log(`- Initial token supply: ${tokenInfo1.totalSupply.low}`);
+                return new TokenInfo(tokenId, tokenAddressSol, tokenId);
+            } catch (e) {
+                reject(e);
+            }
+        })
+    }
+
     async appendFile(text, fileID) {
         const client = this.getHederaClient();
         //const filePublicKey = client.operatorPublicKey;
-        const filePrivateKey = PrivateKey.fromStringED25519('b7fb238125019955e221a73e9861555e0096138dbd530735745b7ca24c268d59');
         const transaction = await new FileAppendTransaction()
             .setFileId(fileID)
             .setContents(text)
@@ -39,7 +75,7 @@ class FileService extends BaseHederaService {
             .freezeWith(client);
 
         //Sign with the file private key
-        const signTx = await transaction.sign(filePrivateKey);
+        const signTx = await transaction.sign(this.operatorKey);
 
         //Sign with the client operator key and submit to a Hedera network
         const txResponse = await signTx.execute(client);

@@ -29,11 +29,6 @@ class FileService extends BaseHederaService {
         return bytecodeFileId.toString();
     }
 
-    async tQueryFcn(tId) {
-        let info = await new TokenInfoQuery().setTokenId(tId).execute(this.client);
-        return info;
-    }
-
      addBytecodeFileToHedera({bytecode}) {
         return new Promise(async (resolve, reject) => {
             try {

@@ -169,14 +169,15 @@ app.post('/api/v1/contract/execute-transaction', async (req, res) => {
     const functionName = req.body.functionName;
     const argument = req.body.argument;
     const gasValue = req.body.gasValue;
+    const tokenId = req.body.tokenId;
 
     try {
-        const data = await contractService.executeTransactionOnContract({contractId, functionName, argument, gasValue});
+        const data = await contractService.executeTransactionOnContract({contractId, functionName, argument, gasValue, tokenId});
         console.log('Execute transaction on contract', 'SUCCESS', data);
         res.status(200).send(data)
     } catch (e) {
         console.log('Execute transaction on contract', 'ERROR', {e});
-        res.status(500).send({error : e.toString()});
+        res.status(500).send(`${e}`);
     }
 })
 

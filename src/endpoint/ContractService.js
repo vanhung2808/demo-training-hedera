@@ -1,6 +1,7 @@
 const {
     ContractInfoQuery, ContractDeleteTransaction, ContractByteCodeQuery,
-    ContractExecuteTransaction, ContractFunctionParameters, ContractCallQuery, ContractCreateTransaction
+    ContractExecuteTransaction, ContractFunctionParameters, ContractCallQuery, ContractCreateTransaction, Hbar,
+    AccountId
 } = require("@hashgraph/sdk");
 const BaseHederaService = require("./BaseHederaService.js");
 const {Contract} = require("./models");
@@ -92,17 +93,26 @@ class ContractService extends BaseHederaService {
         })
     }
 
-    executeTransactionOnContract({contractId, functionName, argument, gasValue}) {
+    executeTransactionOnContract({contractId, functionName, argument, gasValue, tokenId}) {
         return new Promise(async (resolve, reject) => {
             try {
-                const contractExecTxnId = await new ContractExecuteTransaction()
+                console.log(`Execute the Smart Contract`);
+                //Execute a contract function (mint)
+                const contractExecTx = await new ContractExecuteTransaction()
                     .setContractId(contractId)
                     .setGas(gasValue)
-                    .setFunction(functionName, new ContractFunctionParameters().addString(argument))
-                    .execute(this.getHederaClient());
+                    .setPayableAmount(20)
+                    .setFunction(functionName,
+                        new ContractFunctionParameters().addUint64(argument)
+                    )
+                    .setMaxTransactionFee(new Hbar(2));
+                const contractExecSubmit = await contractExecTx.execute(this.client);
+                const contractExecRx = await contractExecSubmit.getReceipt(this.client);
+                console.log(`- New tokens minted: ${contractExecRx.status.toString()}`);
 
-                const receipt = await contractExecTxnId.getReceipt(this.getHederaClient());
-                resolve({receipt})
+                const tokenInfo3 = await this.tQueryFcn(tokenId);
+                console.log(`- New token supply: ${tokenInfo3.totalSupply.low} \n`);
+                resolve({tokenInfo3})
             } catch (e) {
                 reject(e);
             }

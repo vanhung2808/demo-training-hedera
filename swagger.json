@@ -236,16 +236,24 @@
               "type": "object",
               "properties": {
                 "contractId": {
-                  "type": "string"
+                  "type": "string",
+                  "default": "0.0.3388093"
                 },
                 "functionName": {
+                  "default": "mintFungibleToken",
                   "type": "string"
                 },
                 "argument": {
-                  "type": "string"
+                  "type": "number",
+                  "default": "150"
                 },
                 "gasValue": {
-                  "type": "number"
+                  "type": "number",
+                  "default": 3000000
+                },
+                "tokenId": {
+                  "type": "string",
+                  "default": "0.0.3387432"
                 }
               }
             },

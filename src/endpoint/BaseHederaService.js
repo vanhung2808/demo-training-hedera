@@ -1,5 +1,5 @@
 'use strict';
-const {Client, AccountId, PrivateKey} = require("@hashgraph/sdk");
+const {Client, AccountId, PrivateKey, TokenInfoQuery} = require("@hashgraph/sdk");
 
 class BaseHederaService {
     // TESTNET CREDENTIALS
@@ -28,7 +28,9 @@ class BaseHederaService {
     aliceId = AccountId.fromString(this.ALICE_ID);
     aliceyKey = PrivateKey.fromString(this.ALICE_PVKEY);
 
-    getAccountId
+    async tQueryFcn(tId) {
+        return await new TokenInfoQuery().setTokenId(tId).execute(this.client);
+    }
 
 }
 

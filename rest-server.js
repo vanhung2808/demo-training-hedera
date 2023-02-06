@@ -105,8 +105,9 @@ app.post('/api/v1/subscribe',  (req, res) => {
 
 app.post('/api/v1/contract', async (req, res) => {
     const bytecodeFileId = req.body.bytecodeFileId;
+    const tokenAddressSol = req.body.tokenAddressSol;
     try {
-        const contract = await contractService.createContract({bytecodeFileId});
+        const contract = await contractService.createContract({bytecodeFileId, tokenAddressSol});
         console.log('Create contract', 'SUCCESS', contract);
         res.status(200).send(contract);
     } catch (e) {

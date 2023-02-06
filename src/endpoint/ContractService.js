@@ -6,19 +6,18 @@ const BaseHederaService = require("./BaseHederaService.js");
 const {Contract} = require("./models");
 
 class ContractService extends BaseHederaService {
-    createContract({bytecodeFileId}) {
+    createContract({bytecodeFileId, tokenAddressSol}) {
         return new Promise(async (resolve, reject) => {
             try {
                 // Instantiate the smart contract
                 const contractInstantiateTx = new ContractCreateTransaction()
                     .setBytecodeFileId(bytecodeFileId)
-                    .setGas(100000)
-                    .setConstructorParameters(new ContractFunctionParameters().addString("Alice").addUint256(111111));
+                    .setGas(3000000)
+                    .setConstructorParameters(new ContractFunctionParameters().addAddress(tokenAddressSol));
                 const contractInstantiateSubmit = await contractInstantiateTx.execute(this.getHederaClient());
                 const contractInstantiateRx = await contractInstantiateSubmit.getReceipt(this.getHederaClient());
                 const contractId = contractInstantiateRx.contractId;
                 const contractAddress = contractId.toSolidityAddress();
-                console.log(`- The smart contract ID is: ${contractId}`);
                 console.log(`- Smart contract ID in Solidity format: ${contractAddress}`);
                 resolve(new Contract(`${contractId}`, `${contractAddress}`));
             } catch (e) {

@@ -82,13 +82,16 @@
         "summary": "Deploy a contract on hedera.",
         "parameters": [
           {
-            "name": "bytecode",
+            "name": "Request Body",
             "in": "body",
-            "description": "bytecode",
+            "description": "Request Body",
             "schema": {
               "type": "object",
               "properties": {
                 "bytecodeFileId": {
+                  "type": "string"
+                },
+                "tokenAddressSol": {
                   "type": "string"
                 }
               }

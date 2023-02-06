@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
-const acc = require('./src/endpoint/AccountService.js');
+const AccountService = require('./src/endpoint/AccountService.js');
 const HCSService = require("./src/endpoint/HCSService.js");
 const ContractService = require("./src/endpoint/ContractService.js");
 
@@ -13,6 +13,10 @@ const FileService = require('./src/endpoint/FileService.js');
 const hcsService = new HCSService();
 const contractService = new ContractService();
 const fileService = new FileService();
+const accountService = new AccountService();
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -32,7 +36,50 @@ app.get('/api/v1/hedera', (req, res) => {
 
 app.post('/api/v1/account/:initialBalance', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(await acc.createAccount(req.params.initialBalance), null, 3));
+    res.end(JSON.stringify(await accountService.createAccount(req.params.initialBalance), null, 3));
+});
+
+app.get('/api/v1/account/info/:accountId', async (req, res) => {
+    res.send(JSON.stringify(await accountService.getAccountInfo(req.params.accountId), null, 3));
+});
+
+app.get('/api/v1/account/balance/:accountId', async (req, res) => {
+    res.send(JSON.stringify(await accountService.getHbarAccountBalance(req.params.accountId), null, 3));
+});
+
+app.delete('/api/v1/account', async (req, res) => {
+    const {
+        accountId,
+        accountPrivateKey
+    } = req.body
+
+    try {
+        const data = await accountService.deleteAccount({accountId, accountPrivateKey});
+        console.log('Execute account deleting', data);
+        res.status(200).send(data)
+    } catch (e) {
+        console.log('Execute account deleting', 'ERROR', {e});
+        res.status(500).send({e});
+    }
+});
+
+app.post('/api/v1/account/transaction/cryptoTransfer', async (req, res) => {
+    const {
+        amount,
+        memo,
+        senderId,
+        senderPrivateKey,
+        receiverId
+    } = req.body
+
+    try {
+        const data = await accountService.transferHbars({amount, memo, senderId, senderPrivateKey, receiverId});
+        console.log('Execute transfer Hbars', 'SUCCESS', data);
+        res.status(200).send(data)
+    } catch (e) {
+        console.log('Execute transfer Hbars', 'ERROR', {e});
+        res.status(500).send({e});
+    }
 });
 
 app.post('/api/v1/topic/', async (req, res) => {

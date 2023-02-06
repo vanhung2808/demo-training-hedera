@@ -294,6 +294,127 @@
         }
       }
     },
+    "/account/info/{accountId}": {
+      "get": {
+        "tags": [
+          "Hedera Account"
+        ],
+        "summary": "Get account info",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/account": {
+      "delete": {
+        "tags": [
+          "Hedera Account"
+        ],
+        "summary": "Delete Hedera account",
+        "parameters": [
+          {
+            "name": "requestDTO",
+            "in": "body",
+            "description": "DTO to execute a deleting account transaction",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "accountId": {
+                  "type": "string"
+                },
+                "accountPrivateKey": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/account/balance/{accountId}": {
+      "get": {
+        "tags": [
+          "Hedera Account"
+        ],
+        "summary": "Get balance of hedera account",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/account/transaction/cryptoTransfer": {
+      "post": {
+        "tags": [
+          "Hedera Account"
+        ],
+        "summary": "Transfer Hbars between 2 accounts.",
+        "parameters": [
+          {
+            "name": "requestDTO",
+            "in": "body",
+            "description": "DTO to execute a transaction on an account",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "amount": {
+                  "type": "number",
+                  "required": [true]
+                },
+                "memo": {
+                  "type": "string"
+                },
+                "senderId": {
+                  "type": "string"
+                },
+                "senderPrivateKey": {
+                  "type": "string"
+                },
+                "receiverId": {
+                  "type": "string",
+                  "required": [true]
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/users": {
       "get": {
         "tags": [

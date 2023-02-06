@@ -3,7 +3,7 @@ const {
     TokenCreateTransaction, TokenInfoQuery, Client, AccountId
 } = require("@hashgraph/sdk");
 const BaseHederaService = require('./BaseHederaService.js');
-const {TokenInfo} = require("./models");
+const {ContractTokenInfo} = require("./models");
 
 class FileService extends BaseHederaService {
     async createFile(text) {
@@ -34,7 +34,7 @@ class FileService extends BaseHederaService {
         return info;
     }
 
-    addBytecodeFileToHedera({bytecode}) {
+     addBytecodeFileToHedera({bytecode}) {
         return new Promise(async (resolve, reject) => {
             try {
                 //Create a fungible token
@@ -58,7 +58,26 @@ class FileService extends BaseHederaService {
                 // Token query 1
                 const tokenInfo1 = await this.tQueryFcn(tokenId);
                 console.log(`- Initial token supply: ${tokenInfo1.totalSupply.low}`);
-                return new TokenInfo(tokenId, tokenAddressSol, tokenId);
+
+                //Create a file on Hedera and store the hex-encoded bytecode
+                const fileCreateTx = new FileCreateTransaction().setKeys([this.operatorKey]);
+                const fileSubmit = await fileCreateTx.execute(this.client);
+                const fileCreateRx = await fileSubmit.getReceipt(this.client);
+                const bytecodeFileId = fileCreateRx.fileId;
+                console.log(`- The smart contract bytecode file ID is: ${bytecodeFileId}`);
+
+                // Append contents to the file
+                const fileAppendTx = new FileAppendTransaction()
+                    .setFileId(bytecodeFileId)
+                    .setContents(bytecode)
+                    .setMaxChunks(10)
+                    .setMaxTransactionFee(new Hbar(2));
+                const fileAppendSubmit = await fileAppendTx.execute(this.client);
+                const fileAppendRx = await fileAppendSubmit.getReceipt(this.client);
+                console.log(`- Content added: ${fileAppendRx.status}`);
+
+                resolve(new ContractTokenInfo(`${tokenId}`, `${tokenAddressSol}`,
+                    `${tokenId}`, `${bytecodeFileId}`, `${fileAppendRx.status}`));
             } catch (e) {
                 reject(e);
             }

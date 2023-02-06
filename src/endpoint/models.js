@@ -19,12 +19,14 @@ module.exports = {
         }
     },
 
-    TokenInfo: class {
+    ContractTokenInfo: class {
 
-        constructor(tokenId, tokenAddressSol, totalSupplyLow) {
+        constructor(tokenId, tokenAddressSol, totalSupplyLow, bytecodeFileId, fileAppendRxStatus) {
             this.tokenId = tokenId;
             this.tokenAddressSol = tokenAddressSol;
             this.totalSupplyLow = totalSupplyLow;
+            this.bytecodeFileId = bytecodeFileId;
+            this.fileAppendRxStatus = fileAppendRxStatus;
         }
     }
 }
